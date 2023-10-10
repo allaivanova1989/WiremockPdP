@@ -11,7 +11,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 
-public class test {
+public class WireMockTest {
     WireMockServer wireMockServer;
 
     @BeforeEach
@@ -48,19 +48,15 @@ public class test {
                         .withFixedDelay(2500))
         );
 
-        stubFor(get(urlEqualTo("/context/endpoint"))
-                .withHeader("Accept", matching("application/json"))
-                .willReturn(aResponse().withHeader("Content-Type", "text/html")
-
+        stubFor(get(urlEqualTo("/body-file"))
+                .willReturn(aResponse().withHeader("Content-Type", "text/plain")
                         .withStatus(200)
-                        .withBodyFile("example.json")
-                        .withFixedDelay(2500))
+                        .withBodyFile("json/example.json"))
         );
     }
 
     @Test
     public void negativeTest() {
-
         Response r = given()
                 .header(new Header("Accept", "text/plain"))
                 .when()
@@ -71,7 +67,6 @@ public class test {
 
     @Test
     public void successTest() {
-
         Response r = given()
                 .header(new Header("Accept", "application/json"))
                 .when()
@@ -82,7 +77,6 @@ public class test {
 
     @Test
     public void notFoundTest() {
-
         Response r = given()
                 .header(new Header("Accept", "application/json"))
                 .when()
@@ -93,10 +87,8 @@ public class test {
     @Test
     public void testResponseContents() {
         Response r =  given()
-                .header(new Header("Accept", "application/json"))
                 .when()
-                .get("context/endpoint")
-                .as(Response.class);
+                .get("/body-file");
         String title = r.jsonPath().get("first_name");
         System.out.println(title);
         Assert.assertEquals("Sammy", title);
